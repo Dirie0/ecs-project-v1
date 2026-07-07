@@ -27,3 +27,11 @@ output "nat_gateway_ids" {
 output "internet_gateway_id" {
   value       = module.vpc.internet_gateway_id
 }
+
+output "security_group_alb_id" {
+  value = module.security_groups.security_group_alb_id
+}
+
+output "security_group_ecs_id" {
+  value = module.security_groups.security_group_ecs_id
+}

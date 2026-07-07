@@ -6,6 +6,7 @@ resource "aws_vpc" "main_vpc" {
     var.common_tags,
     {
       Name = var.vpc_config.name
+      Service = "vpc"
     }
   )
 }
@@ -22,6 +23,7 @@ resource "aws_subnet" "public" {
     var.common_tags,
     {
     Name = "${var.environment}-subnet-${each.key}"
+    Service = "vpc"
     }
   )
 }
@@ -36,6 +38,7 @@ resource "aws_subnet" "private" {
     var.common_tags,
     {
     Name = "${var.environment}-subnet-${each.key}"
+    Service = "vpc"
     }
   )
 }
@@ -46,6 +49,7 @@ resource "aws_internet_gateway" "main_igw" {
         var.common_tags,
         {
         Name = "${var.environment}-igw"
+        Service = "vpc"
         }
     )
 }
@@ -61,6 +65,7 @@ resource "aws_eip" "nat" {
     var.common_tags,
     {
       Name = "${var.environment}-nat-eip-${each.key}"
+      Service = "vpc"
     }
   )
 }
@@ -77,6 +82,7 @@ resource "aws_nat_gateway" "nat_gateway" {
     var.common_tags,
     {
       Name = "${var.environment}-nat-gateway-${each.key}"
+      Service = "vpc"
     }
   )
 }
@@ -94,6 +100,7 @@ resource "aws_route_table" "public" {
     var.common_tags,
     {
       Name = "${var.environment}-public-rt"
+      Service = "vpc"
     }
   )
 }

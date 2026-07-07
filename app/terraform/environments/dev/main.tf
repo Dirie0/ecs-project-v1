@@ -27,3 +27,8 @@ module "ecr" {
   environment = var.environment
 }
 
+module "acm" {
+  source = "../../modules/acm"
+}
+
+

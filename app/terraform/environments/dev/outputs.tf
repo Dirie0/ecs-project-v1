@@ -43,3 +43,8 @@ output "repository_url" {
 output "repository_name" {
   value = module.ecr.repository_name
 }
+
+output "acm_certificate_arn" {
+  value = module.acm.certificate_arn
+}
+

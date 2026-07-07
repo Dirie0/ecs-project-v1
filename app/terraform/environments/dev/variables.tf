@@ -11,6 +11,10 @@ variable "bucket_name" {
   type = string
 }
 
+variable "project_name" {
+  type = string
+}
+
 variable "vpc_config" {
   type = object({
     cidr_block = string

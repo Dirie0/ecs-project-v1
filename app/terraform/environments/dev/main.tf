@@ -6,3 +6,10 @@ module "vpc" {
   private_subnet_config = var.private_subnet_config
   environment = var.environment
 }
+
+module "security_groups" {
+  source = "../../modules/security_groups"
+  vpc_id = module.vpc.vpc_id
+  common_tags = var.common_tags
+  environment = var.environment
+}

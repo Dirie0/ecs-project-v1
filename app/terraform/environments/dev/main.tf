@@ -13,3 +13,10 @@ module "security_groups" {
   common_tags = var.common_tags
   environment = var.environment
 }
+
+
+module "iam" {
+  source = "../../modules/iam"
+  common_tags = var.common_tags
+  environment = var.environment
+}

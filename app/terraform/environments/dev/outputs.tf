@@ -35,3 +35,11 @@ output "security_group_alb_id" {
 output "security_group_ecs_id" {
   value = module.security_groups.security_group_ecs_id
 }
+
+output "repository_url" {
+  value = module.ecr.repository_url
+}
+
+output "repository_name" {
+  value = module.ecr.repository_name
+}

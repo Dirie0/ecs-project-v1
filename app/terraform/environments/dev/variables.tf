@@ -18,6 +18,6 @@ variable "vpc_config" {
   })
 }
 
-variable "vpc_tag" {
+variable "common_tags" {
   type = map(string)
 }

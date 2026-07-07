@@ -34,6 +34,7 @@ variable "private_subnet_config" {
   type = map(object({
     cidr_block = string
     az         = string
+    nat_key    = string
   }))
 }
 

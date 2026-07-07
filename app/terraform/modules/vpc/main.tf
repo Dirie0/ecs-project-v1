@@ -108,3 +108,26 @@ resource "aws_route_table_association" "public" {
 
 
 
+resource "aws_route_table" "private" {
+  for_each = aws_subnet.private
+  vpc_id   = aws_vpc.main_vpc.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat_gateway[var.private_subnet_config[each.key].nat_key].id
+  }
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.environment}-private-rt"
+    }
+  )
+}
+
+resource "aws_route_table_association" "private" {
+  for_each = aws_subnet.private
+
+  subnet_id      = each.value.id
+  route_table_id = aws_route_table.private[each.key].id
+}

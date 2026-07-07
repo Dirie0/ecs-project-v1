@@ -1,0 +1,26 @@
+# IDE
+*.iml
+.idea
+.vscode
+
+# OS
+.DS_Store
+
+
+# Misc
+*.db
+*.db-shm
+*.db-wal
+
+
+#terraform
+terraform/bootstrap/terraform.lock.hcl 
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+
+
+
+
+

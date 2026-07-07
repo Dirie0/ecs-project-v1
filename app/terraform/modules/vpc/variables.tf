@@ -29,4 +29,3 @@ variable "private_subnet_config" {
     az         = string
   }))
 }
-

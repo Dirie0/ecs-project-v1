@@ -6,7 +6,22 @@ variable "vpc_config" {
   })
 }
 
-variable "vpc_tag" {
-  description = "Tags to apply to the VPC"
+variable "common_tags" {
+  description = "Common tags to apply to all resources"
   type        = map(string)
 }
+
+variable "public_subnet_config" {
+  type = map(object({
+    cidr_block = string
+    az         = string
+  }))
+}
+
+variable "private_subnet_config" {
+  type = map(object({
+    cidr_block = string
+    az         = string
+  }))
+}
+

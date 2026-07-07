@@ -7,14 +7,17 @@ variable "environment" {
 }
 
 
-variable "project_name" {
-    type = string
-}
-
 variable "bucket_name" {
-    type = string
+  type = string
 }
 
-variable "tags" {
-    type = map(string)
+variable "vpc_config" {
+  type = object({
+    cidr_block = string
+    name       = string
+  })
+}
+
+variable "vpc_tag" {
+  type = map(string)
 }

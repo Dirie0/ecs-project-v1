@@ -18,6 +18,7 @@ resource "aws_lb_target_group" "alb_target_group" {
     port = 8080
     protocol = "HTTP"
     vpc_id = var.vpc_id
+    target_type = "ip"
     health_check {
         path = "/health"
         interval = 30

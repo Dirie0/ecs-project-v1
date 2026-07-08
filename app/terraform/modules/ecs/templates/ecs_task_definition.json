@@ -1,6 +1,6 @@
 [
   {
-    "name": "ecs-gatus-container",
+    "name": "${environment}-ecs-${project_name}-container",
     "image": "${app_image}",
     "cpu": ${task_cpu},
     "memory": ${task_memory},

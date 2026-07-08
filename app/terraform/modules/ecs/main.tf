@@ -28,10 +28,41 @@ resource "aws_ecs_task_definition" "ecs_gatus_task" {
       app_image = var.app_image
       aws_region = var.aws_region
       log_group= var.log_group
+      environment = var.environment
+
     }
   )
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "ARM64"
   }
+}
+
+#ecs service
+resource "aws_ecs_service" "ecs_gatus_service" {
+  name            = "${var.project_name}-service"
+  cluster         = aws_ecs_cluster.ecs_cluster.id
+  task_definition = aws_ecs_task_definition.ecs_gatus_task.arn
+  desired_count   = var.app_count
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = var.private_subnet_ids
+    security_groups  = [var.ecs_security_group_id]
+    assign_public_ip = true
+  }
+
+  load_balancer {
+    target_group_arn = var.target_group_arn
+    container_name   = "${var.environment}-ecs-${var.project_name}-container"
+    container_port   = var.app_port
+  }
+ depends_on = [  ]
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.project_name}-${var.environment}-ecs-service"
+      Service = "ecs"
+    }
+  )
 }

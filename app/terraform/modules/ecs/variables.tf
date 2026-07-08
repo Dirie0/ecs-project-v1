@@ -47,3 +47,20 @@ variable "log_group" {
 variable "app_image" {
     type = string 
 }
+
+variable "app_count" {
+    type = number
+}
+
+variable "private_subnet_ids" {
+    type = list(string)
+}
+
+variable "ecs_security_group_id" {
+    type = string
+}
+
+variable "target_group_arn" {
+    type = string
+}
+

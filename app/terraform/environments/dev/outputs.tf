@@ -60,3 +60,7 @@ output "ecs_task_role_arn" {
 output "ecs_execution_role_arn" {
   value = module.iam.ecs_task_execution_role_arn
 }
+
+output "alb_target_group_arn" {
+  value = module.alb.target_group_arn
+}

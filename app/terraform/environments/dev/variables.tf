@@ -60,3 +60,6 @@ variable "app_image" {
     type = string 
 }
 
+variable "app_count" {
+    type = number
+}

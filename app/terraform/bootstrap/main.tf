@@ -5,3 +5,9 @@ module "s3" {
     tags = var.tags
     
 }
+
+
+module "oicd" {
+    source = "./modules/oicd"
+}
+

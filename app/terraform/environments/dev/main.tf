@@ -31,4 +31,14 @@ module "acm" {
   source = "../../modules/acm"
 }
 
+module "alb" { 
+    source = "../../modules/alb"
+    vpc_id = module.vpc.vpc_id
+    public_subnet_ids = module.vpc.public_subnet_ids
+    alb_security_group_id = module.security_groups.security_group_alb_id
+    common_tags = var.common_tags
+    environment = var.environment
+}
+
+
 

@@ -22,3 +22,8 @@ variable "public_subnet_ids" {
   description = "A list of public subnet IDs where the ALB will be created"
   type        = list(string)
 }
+
+variable "acm_certificate_arn" {
+  description = "The ARN of the ACM certificate to associate with the ALB"
+  type        = string
+}

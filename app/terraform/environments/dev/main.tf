@@ -38,6 +38,7 @@ module "alb" {
     alb_security_group_id = module.security_groups.security_group_alb_id
     common_tags = var.common_tags
     environment = var.environment
+    acm_certificate_arn = module.acm.certificate_arn
 }
 
 

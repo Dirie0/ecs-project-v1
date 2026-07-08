@@ -42,3 +42,21 @@ variable "private_subnet_config" {
   }))
 }
 
+
+variable "task_cpu" {
+  type = number 
+}
+
+variable "task_memory" {
+    type = number
+}
+
+variable "app_port" {
+  type = number
+}   
+
+
+variable "app_image" {
+    type = string 
+}
+

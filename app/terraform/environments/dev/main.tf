@@ -50,3 +50,18 @@ module "cloudwatch" {
 }
 
 
+module "ecs" {
+  source = "../../modules/ecs"
+  project_name = var.project_name
+  ecs_execution_role_arn = module.iam.ecs_task_execution_role_arn
+  ecs_task_role_arn = module.iam.ecs_task_role_arn
+  task_cpu = var.task_cpu
+  task_memory = var.task_memory
+  app_port = var.app_port
+  ecr_repository_url = module.ecr.repository_url
+  log_group = module.cloudwatch.app_log_group
+  common_tags = var.common_tags
+  environment = var.environment
+  aws_region = var.aws_region
+  app_image = var.app_image
+}

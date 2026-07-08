@@ -63,3 +63,8 @@ variable "app_image" {
 variable "app_count" {
     type = number
 }
+
+
+variable "domain_name" {
+    type = string
+}

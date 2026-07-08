@@ -69,3 +69,11 @@ module "ecs" {
   target_group_arn = module.alb.target_group_arn
   app_count = var.app_count
 }
+
+
+module "route_53" {
+  source = "../../modules/route_53"
+  domain_name = var.domain_name
+  aws_alb_dns_name = module.alb.alb_dns_name
+  aws_alb_zone_id = module.alb.alb_zone_id
+}

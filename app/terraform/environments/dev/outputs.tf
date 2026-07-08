@@ -48,3 +48,9 @@ output "acm_certificate_arn" {
   value = module.acm.certificate_arn
 }
 
+output "app_log_group" {
+  value = module.cloudwatch.app_log_group
+}
+
+
+

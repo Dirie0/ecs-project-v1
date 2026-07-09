@@ -72,7 +72,9 @@ jobs:
           --repository-name ${{ env.ECR_REPOSITORY }} \
           --image-ids imageTag=$IMAGE_TAG \
           --region ${{ env.AWS_REGION }}
-
+      
+      - uses: hashicorp/setup-terraform@v3
+      
       - name: Terraform Init
         working-directory: terraform/environments/${{ inputs.environment }}
         run: terraform init

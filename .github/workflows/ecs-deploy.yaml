@@ -18,96 +18,132 @@ on:
           - staging
           - prod
 
-
 concurrency:
   group: ecs-deploy-${{ inputs.environment || 'dev' }}-${{ github.ref }}
   cancel-in-progress: true
-
 
 permissions:
   id-token: write
   contents: read
 
-
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
   ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
-
+  URL: ${{ vars.URL }}
 
 jobs:
+
+  terraform-static-analysis:
+    name: Terraform Static Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform fmt check
+      run: terraform fmt -check -recursive terraform
+
+    - name: Terraform Init
+      working-directory: terraform/environments/${{ inputs.environment || 'dev' }}
+      run: terraform init
+
+    - name: Terraform Validate
+      working-directory: terraform/environments/${{ inputs.environment || 'dev' }}
+      run: terraform validate
+
+    - name: Setup TFLint
+      uses: terraform-linters/setup-tflint@v4
+
+    - name: TFLint Init
+      working-directory: terraform/environments/${{ inputs.environment || 'dev' }}
+      run: tflint --init
+
+    - name: TFLint
+      working-directory: terraform/environments/${{ inputs.environment || 'dev' }}
+      run: tflint
+
+    - name: Checkov
+      uses: bridgecrewio/checkov-action@v12
+      with:
+        directory: terraform
+        framework: terraform
+
+
   deploy:
     name: Deploy to ECS
     runs-on: ubuntu-latest
-
-    environment:
-      name: ${{ inputs.environment || 'dev' }}
-
+    needs: terraform-static-analysis
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+
+    - name: Checkout code
+      uses: actions/checkout@v4
 
 
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
+    - name: Configure AWS credentials (OIDC)
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
 
 
-      - name: Login to Amazon ECR
-        id: ecr-login
-        uses: aws-actions/amazon-ecr-login@v2
+    - name: Login to Amazon ECR
+      id: ecr-login
+      uses: aws-actions/amazon-ecr-login@v2
 
 
-      - name: Build image URI
-        id: image
-        env:
-          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
-          IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
-        run: |
-          echo "uri=$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
+    - name: Build image URI
+      id: image
+      env:
+        ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+        IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
+      run: |
+        echo "uri=$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
 
-      - name: Verify image exists in ECR
-        env:
-          IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
-        run: |
-          aws ecr describe-images \
-            --repository-name ${{ env.ECR_REPOSITORY }} \
-            --image-ids imageTag=$IMAGE_TAG \
-            --region ${{ env.AWS_REGION }}
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+    - name: Verify image exists in ECR
+      env:
+        IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
+      run: |
+        aws ecr describe-images \
+          --repository-name ${{ env.ECR_REPOSITORY }} \
+          --image-ids imageTag=$IMAGE_TAG \
+          --region ${{ env.AWS_REGION }}
 
 
-      - name: Terraform Init
-        working-directory: terraform/environments/${{ inputs.environment || 'dev' }}
-        run: terraform init
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform Plan
-        working-directory: terraform/environments/${{ inputs.environment || 'dev' }}
-        run: |
-          terraform plan \
-            -var-file=terraform.tfvars \
-            -var="app_image=${{ steps.image.outputs.uri }}" \
-            -out=tfplan
 
-      - name: Terraform Apply
-        working-directory: terraform/environments/${{ inputs.environment || 'dev' }}
-        run: terraform apply -auto-approve tfplan
+    - name: Terraform Init
+      working-directory: terraform/environments/${{ inputs.environment || 'dev' }}
+      run: terraform init
 
-      - name: Health check website
-        run: |
-          for i in {1..10}; do
-            if curl -f https://dirieisseprojects.co.uk; then
-              echo "Website is healthy"
-              exit 0
-            fi
-            echo "Waiting for website..."
-            sleep 15
-          done
-          echo "Website failed health check"
-          exit 1
+
+    - name: Terraform Plan
+      working-directory: terraform/environments/${{ inputs.environment || 'dev' }}
+      run: |
+        terraform plan \
+          -var-file=terraform.tfvars \
+          -var="app_image=${{ steps.image.outputs.uri }}" \
+          -out=tfplan
+
+
+    - name: Terraform Apply
+      working-directory: terraform/environments/${{ inputs.environment || 'dev' }}
+      run: terraform apply -auto-approve tfplan
+
+
+    - name: Health Check
+      uses: jtalk/url-health-check-action@v5
+      with:
+        url: https://${{ env.URL }}/health
+        follow-redirect: true
+        max-attempts: 20
+        retry-delay: 15s

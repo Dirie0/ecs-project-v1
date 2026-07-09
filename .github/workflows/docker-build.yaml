@@ -50,6 +50,12 @@ jobs:
           output-format: sarif
           output-file: grype-results.sarif
 
+      - name: Upload Grype results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: grype-results.sarif
+
       - name: Tag and push image to ECR
         env:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}

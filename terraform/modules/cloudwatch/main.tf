@@ -5,7 +5,7 @@ resource "aws_cloudwatch_log_group" "app" {
   tags = merge(
     var.common_tags,
     {
-      Name = "${var.project_name}-${var.environment}-app-log-group"
+      Name    = "${var.project_name}-${var.environment}-app-log-group"
       Service = "cloudwatch"
     }
   )

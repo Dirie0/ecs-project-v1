@@ -18,32 +18,32 @@ resource "aws_acm_certificate" "app" {
 resource "aws_route53_record" "validation" {
 
 
-for_each = {
+  for_each = {
 
-for dvo in aws_acm_certificate.app.domain_validation_options :
+    for dvo in aws_acm_certificate.app.domain_validation_options :
 
-dvo.domain_name => dvo
+    dvo.domain_name => dvo
 
-}
-
-
-zone_id = var.zone_id
+  }
 
 
-name = each.value.resource_record_name
+  zone_id = var.zone_id
 
 
-type = each.value.resource_record_type
+  name = each.value.resource_record_name
 
 
-records = [
-
-each.value.resource_record_value
-
-]
+  type = each.value.resource_record_type
 
 
-ttl = 60
+  records = [
+
+    each.value.resource_record_value
+
+  ]
+
+
+  ttl = 60
 
 }
 
@@ -52,15 +52,15 @@ ttl = 60
 resource "aws_acm_certificate_validation" "app" {
 
 
-certificate_arn = aws_acm_certificate.app.arn
+  certificate_arn = aws_acm_certificate.app.arn
 
 
-validation_record_fqdns = [
+  validation_record_fqdns = [
 
-for record in aws_route53_record.validation :
+    for record in aws_route53_record.validation :
 
-record.fqdn
+    record.fqdn
 
-]
+  ]
 
 }

@@ -15,7 +15,7 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   tags = merge(
     var.common_tags,
     {
-      Name = "${var.environment}-ecs-task-execution-role"
+      Name    = "${var.environment}-ecs-task-execution-role"
       Service = "iam"
     }
   )
@@ -34,7 +34,7 @@ resource "aws_iam_role" "ecs_task_role" {
   tags = merge(
     var.common_tags,
     {
-      Name = "${var.environment}-ecs-task-role"
+      Name    = "${var.environment}-ecs-task-role"
       Service = "iam"
     }
   )

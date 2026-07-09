@@ -3,7 +3,7 @@
 #     region = var.aws_region
 #     bucket_name = var.bucket_name
 #     tags = var.tags
-    
+
 # }
 
 
@@ -12,10 +12,10 @@
 # }
 
 module "deploy_role" {
-    source = "./modules/deployment-role"
-    github_repo = var.github_repo
-    oidc_provider_arn = var.github_oidc_provider_arn
-    environment = var.environment
-    project_name = var.project_name
+  source            = "./modules/deployment-role"
+  github_repo       = var.github_repo
+  oidc_provider_arn = var.github_oidc_provider_arn
+  environment       = var.environment
+  project_name      = var.project_name
 
 }

@@ -1,8 +1,8 @@
-aws_region  = "us-east-1"
-environment = "dev"
-bucket_name = "gatus-terraform-state-dev"
+aws_region   = "us-east-1"
+environment  = "dev"
+bucket_name  = "gatus-terraform-state-dev"
 project_name = "gatus"
-domain_name = "dirieisseprojects.co.uk"
+domain_name  = "dirieisseprojects.co.uk"
 
 common_tags = {
   Environment = "dev"
@@ -31,13 +31,13 @@ private_subnet_config = {
   private_a = {
     cidr_block = "10.0.2.0/24"
     az         = "us-east-1a"
-    nat_key = "public_a"
+    nat_key    = "public_a"
   }
 
   private_b = {
     cidr_block = "10.0.3.0/24"
     az         = "us-east-1b"
-    nat_key = "public_b"
+    nat_key    = "public_b"
   }
 }
 

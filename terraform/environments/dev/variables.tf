@@ -44,27 +44,27 @@ variable "private_subnet_config" {
 
 
 variable "task_cpu" {
-  type = number 
+  type = number
 }
 
 variable "task_memory" {
-    type = number
+  type = number
 }
 
 variable "app_port" {
   type = number
-}   
+}
 
 
 variable "app_image" {
-    type = string 
+  type = string
 }
 
 variable "app_count" {
-    type = number
+  type = number
 }
 
 
 variable "domain_name" {
-    type = string
+  type = string
 }

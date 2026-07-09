@@ -5,7 +5,7 @@ resource "aws_vpc" "main_vpc" {
   tags = merge(
     var.common_tags,
     {
-      Name = var.vpc_config.name
+      Name    = var.vpc_config.name
       Service = "vpc"
     }
   )
@@ -22,8 +22,8 @@ resource "aws_subnet" "public" {
   tags = merge(
     var.common_tags,
     {
-    Name = "${var.environment}-subnet-${each.key}"
-    Service = "vpc"
+      Name    = "${var.environment}-subnet-${each.key}"
+      Service = "vpc"
     }
   )
 }
@@ -37,21 +37,21 @@ resource "aws_subnet" "private" {
   tags = merge(
     var.common_tags,
     {
-    Name = "${var.environment}-subnet-${each.key}"
-    Service = "vpc"
+      Name    = "${var.environment}-subnet-${each.key}"
+      Service = "vpc"
     }
   )
 }
 
 resource "aws_internet_gateway" "main_igw" {
   vpc_id = aws_vpc.main_vpc.id
-    tags = merge(
-        var.common_tags,
-        {
-        Name = "${var.environment}-igw"
-        Service = "vpc"
-        }
-    )
+  tags = merge(
+    var.common_tags,
+    {
+      Name    = "${var.environment}-igw"
+      Service = "vpc"
+    }
+  )
 }
 
 resource "aws_eip" "nat" {
@@ -64,7 +64,7 @@ resource "aws_eip" "nat" {
   tags = merge(
     var.common_tags,
     {
-      Name = "${var.environment}-nat-eip-${each.key}"
+      Name    = "${var.environment}-nat-eip-${each.key}"
       Service = "vpc"
     }
   )
@@ -81,7 +81,7 @@ resource "aws_nat_gateway" "nat_gateway" {
   tags = merge(
     var.common_tags,
     {
-      Name = "${var.environment}-nat-gateway-${each.key}"
+      Name    = "${var.environment}-nat-gateway-${each.key}"
       Service = "vpc"
     }
   )
@@ -99,7 +99,7 @@ resource "aws_route_table" "public" {
   tags = merge(
     var.common_tags,
     {
-      Name = "${var.environment}-public-rt"
+      Name    = "${var.environment}-public-rt"
       Service = "vpc"
     }
   )

@@ -48,8 +48,8 @@ data "aws_iam_policy_document" "permissions" {
   }
 
   statement {
-    sid     = "PassRoleScoped"
-     actions = [
+    sid = "PassRoleScoped"
+    actions = [
       "iam:GetRole",
       "iam:CreateRole",
       "iam:DeleteRole",

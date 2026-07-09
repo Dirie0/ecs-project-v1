@@ -19,48 +19,48 @@ variable "ecs_task_role_arn" {
 }
 
 variable "task_cpu" {
-  type = number 
+  type = number
 }
 
 variable "task_memory" {
-    type = number
+  type = number
 }
 
 variable "app_port" {
   type = number
-}   
+}
 
 variable "ecr_repository_url" {
-    type = string   
+  type = string
 }
 
 
 variable "aws_region" {
-    type = string   
+  type = string
 }
 
 
 variable "log_group" {
-    type = string 
+  type = string
 }
 
 variable "app_image" {
-    type = string 
+  type = string
 }
 
 variable "app_count" {
-    type = number
+  type = number
 }
 
 variable "private_subnet_ids" {
-    type = list(string)
+  type = list(string)
 }
 
 variable "ecs_security_group_id" {
-    type = string
+  type = string
 }
 
 variable "target_group_arn" {
-    type = string
+  type = string
 }
 

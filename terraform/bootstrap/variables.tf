@@ -4,7 +4,7 @@ variable "bucket_name" {
 }
 
 
-variable tags {
+variable "tags" {
   description = "Tags to apply to the S3 bucket"
   type        = map(string)
 }

@@ -11,21 +11,21 @@ output "private_subnet_ids" {
 }
 
 output "nat_eip_ids" {
-  value       =  module.vpc.nat_eip_ids
+  value = module.vpc.nat_eip_ids
 
 }
 
 output "nat_eip_public_ips" {
-  value       = module.vpc.nat_eip_public_ips 
+  value = module.vpc.nat_eip_public_ips
 }
 
 output "nat_gateway_ids" {
-  value       = module.vpc.nat_gateway_ids 
+  value = module.vpc.nat_gateway_ids
 
 }
 
 output "internet_gateway_id" {
-  value       = module.vpc.internet_gateway_id
+  value = module.vpc.internet_gateway_id
 }
 
 output "security_group_alb_id" {

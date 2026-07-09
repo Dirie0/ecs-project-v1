@@ -74,15 +74,15 @@ jobs:
           --region ${{ env.AWS_REGION }}
       
       - uses: hashicorp/setup-terraform@v3
-      
+
       - name: Terraform Init
         working-directory: terraform/environments/${{ inputs.environment }}
         run: terraform init
 
       - name: Terraform Plan
         working-directory: terraform/environments/${{ inputs.environment }}
-        run: terraform plan -out=tfplan
+        run: terraform plan -var-file=terraform.tfvars --out=tfplan
 
       - name: Terraform Apply
         working-directory: terraform/environments/${{ inputs.environment }}
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -var-file=terraform.tfvars -auto-approve tfplan

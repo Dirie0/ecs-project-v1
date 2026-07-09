@@ -41,8 +41,8 @@ jobs:
             -t ${{ vars.ECR_REPOSITORY }}:${{ github.sha }} \
             -f gatus/Dockerfile gatus
             
-      - name: Image scan using grype 
-        uses: anchore/grype-action@v6
+      - name: Image scan using Grype
+        uses: anchore/scan-action@v6
         with:
           image: ${{ steps.build-image.outputs.image }}
           fail-build: true

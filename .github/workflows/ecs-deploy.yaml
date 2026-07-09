@@ -13,7 +13,7 @@ on:
           - prod
 
 concurrency:
-  group: ecs-deploy-${{ github.event.inputs.environment }}-${{ github.ref }}
+  group: ecs-deploy-${{ inputs.environment }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -31,8 +31,10 @@ jobs:
     name: Terraform Static Analysis
     runs-on: ubuntu-latest
 
+    environment:
+    name: ${{ inputs.environment }}
+    
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -43,7 +45,7 @@ jobs:
         run: terraform fmt -check -recursive terraform
 
       - name: Terraform validate
-        working-directory: terraform/environments/${{ github.event.inputs.environment }}
+        working-directory: terraform/environments/${{ inputs.environment }}
         run: |
           terraform init -backend=false
           terraform validate
@@ -52,11 +54,11 @@ jobs:
         uses: terraform-linters/setup-tflint@v4
 
       - name: TFLint init
-        working-directory: terraform/environments/${{ github.event.inputs.environment }}
+        working-directory: terraform/environments/${{ inputs.environment }}
         run: tflint --init
 
       - name: TFLint
-        working-directory: terraform/environments/${{ github.event.inputs.environment }}
+        working-directory: terraform/environments/${{ inputs.environment }}
         run: tflint
 
       - name: Checkov
@@ -70,13 +72,16 @@ jobs:
     name: Deploy to ECS
     runs-on: ubuntu-latest
 
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    environment:
+      name: ${{ inputs.environment }}
+
+    needs:
+      - terraform-static-analysis
 
     steps:
 
       - name: Checkout code
         uses: actions/checkout@v4
-
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -84,53 +89,45 @@ jobs:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-
       - name: Login to Amazon ECR
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
-
 
       - name: Build image URI
         id: image
         env:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
-          IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "uri=$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-
       - name: Verify image exists in ECR
         env:
-          IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           aws ecr describe-images \
             --repository-name ${{ env.ECR_REPOSITORY }} \
             --image-ids imageTag=$IMAGE_TAG \
             --region ${{ env.AWS_REGION }}
 
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-
       - name: Terraform Init
-        working-directory: terraform/environments/${{ github.event.inputs.environment }}
+        working-directory: terraform/environments/${{ inputs.environment }}
         run: terraform init
 
-
       - name: Terraform Plan
-        working-directory: terraform/environments/${{ github.event.inputs.environment }}
+        working-directory: terraform/environments/${{ inputs.environment }}
         run: |
           terraform plan \
             -var-file=terraform.tfvars \
             -var="app_image=${{ steps.image.outputs.uri }}" \
             -out=tfplan
 
-
       - name: Terraform Apply
-        working-directory: terraform/environments/${{ github.event.inputs.environment }}
+        working-directory: terraform/environments/${{ inputs.environment }}
         run: terraform apply -auto-approve tfplan
-
 
       - name: Health check
         uses: jtalk/url-health-check-action@v5

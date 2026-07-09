@@ -98,3 +98,16 @@ jobs:
       - name: Terraform Apply
         working-directory: terraform/environments/${{ inputs.environment || 'dev' }}
         run: terraform apply -auto-approve tfplan
+
+      - name: Health check website
+        run: |
+          for i in {1..10}; do
+            if curl -f https://dirieisseprojects.co.uk; then
+              echo "Website is healthy"
+              exit 0
+            fi
+            echo "Waiting for website..."
+            sleep 15
+          done
+          echo "Website failed health check"
+          exit 1

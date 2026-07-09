@@ -34,11 +34,21 @@ jobs:
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build image
+      - name: Build Docker image
+        id: build-image
         run: |
           docker build \
             -t ${{ vars.ECR_REPOSITORY }}:${{ github.sha }} \
             -f gatus/Dockerfile gatus
+            
+      - name: Image scan using grype 
+        uses: anchore/grype-action@v6
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          fail-build: true
+          severity-cutoff: critical
+          output-format: sarif
+          output-file: grype-results.sarif
 
       - name: Tag and push image to ECR
         env:

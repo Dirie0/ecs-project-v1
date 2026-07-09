@@ -2,11 +2,6 @@ variable domain_name {
   type = string
 }
 
-variable "aws_alb_dns_name" {
-  type = string
+variable "common_tags"{
+  type = map(string)
 }
-
-variable "aws_alb_zone_id" {
-  type = string
-}
-

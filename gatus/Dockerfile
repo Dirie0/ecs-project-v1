@@ -5,7 +5,7 @@ RUN go mod download
 
 COPY . .
 RUN apk add --no-cache ca-certificates
-RUN CGO_ENABLED=0 GOOS=linux go build -o gatus .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o gatus .
 
 FROM gcr.io/distroless/static-debian13:nonroot
 COPY --from=builder --chown=nonroot:nonroot /go/src/app/gatus /gatus

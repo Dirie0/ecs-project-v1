@@ -29,6 +29,8 @@ module "ecr" {
 
 module "acm" {
   source = "../../modules/acm"
+  zone_id = module.route_53.zone_id
+  domain_name = var.domain_name
 }
 
 module "alb" { 
@@ -39,6 +41,11 @@ module "alb" {
     common_tags = var.common_tags
     environment = var.environment
     acm_certificate_arn = module.acm.certificate_arn
+    
+    depends_on = [
+    module.acm
+  ]
+  
 }
 
 

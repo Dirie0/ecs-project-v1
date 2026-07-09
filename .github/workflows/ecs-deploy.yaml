@@ -20,7 +20,7 @@ on:
 
 
 concurrency:
-  group: ecs-deploy-${{ inputs.environment }}-${{ github.ref }}
+  group: ecs-deploy-${{ inputs.environment || 'dev' }}-${{ github.ref }}
   cancel-in-progress: true
 
 
@@ -28,9 +28,11 @@ permissions:
   id-token: write
   contents: read
 
+
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
   ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+
 
 jobs:
   deploy:
@@ -46,15 +48,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
+
       - name: Login to Amazon ECR
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
+
 
       - name: Build image URI
         id: image
@@ -64,25 +69,32 @@ jobs:
         run: |
           echo "uri=$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
+
       - name: Verify image exists in ECR
         env:
           IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
         run: |
           aws ecr describe-images \
-          --repository-name ${{ env.ECR_REPOSITORY }} \
-          --image-ids imageTag=$IMAGE_TAG \
-          --region ${{ env.AWS_REGION }}
-      
-      - uses: hashicorp/setup-terraform@v3
+            --repository-name ${{ env.ECR_REPOSITORY }} \
+            --image-ids imageTag=$IMAGE_TAG \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
 
       - name: Terraform Init
-        working-directory: terraform/environments/${{ inputs.environment || 'dev' }} 
+        working-directory: terraform/environments/${{ inputs.environment || 'dev' }}
         run: terraform init
 
       - name: Terraform Plan
-        working-directory: terraform/environments/${{ inputs.environment || 'dev' }} 
-        run: terraform plan -var-file=terraform.tfvars --out=tfplan
+        working-directory: terraform/environments/${{ inputs.environment || 'dev' }}
+        run: |
+          terraform plan \
+            -var-file=terraform.tfvars \
+            -var="app_image=${{ steps.image.outputs.uri }}" \
+            -out=tfplan
 
       - name: Terraform Apply
-        working-directory: terraform/environments/${{ inputs.environment || 'dev' }} 
-        run: terraform apply -var-file=terraform.tfvars -auto-approve tfplan
+        working-directory: terraform/environments/${{ inputs.environment || 'dev' }}
+        run: terraform apply -auto-approve tfplan

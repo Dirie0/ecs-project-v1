@@ -47,7 +47,5 @@ task_memory = 512
 
 app_port = 8080
 
-app_image = "930067561901.dkr.ecr.us-east-1.amazonaws.com/dev-gatus:latest"
-
 app_count = 1
 

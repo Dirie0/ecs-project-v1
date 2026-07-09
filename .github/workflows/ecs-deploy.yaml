@@ -76,13 +76,13 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
-        working-directory: terraform/environments/${{ inputs.environment }}
+        working-directory: terraform/environments/${{ inputs.environment || 'dev' }} }}
         run: terraform init
 
       - name: Terraform Plan
-        working-directory: terraform/environments/${{ inputs.environment }}
+        working-directory: terraform/environments/${{ inputs.environment || 'dev' }} }}
         run: terraform plan -var-file=terraform.tfvars --out=tfplan
 
       - name: Terraform Apply
-        working-directory: terraform/environments/${{ inputs.environment }}
+        working-directory: terraform/environments/${{ inputs.environment || 'dev' }} }}
         run: terraform apply -var-file=terraform.tfvars -auto-approve tfplan

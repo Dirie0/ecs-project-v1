@@ -1,6 +1,5 @@
 aws_region   = "us-east-1"
 environment  = "dev"
-bucket_name  = "gatus-terraform-state-dev"
 project_name = "gatus"
 domain_name  = "dirieisseprojects.co.uk"
 

@@ -1,9 +1,11 @@
 name: Deploy to ECS
+
 on:
   workflow_run:
     workflows: ["Build and Push Gatus Image"]
     types: [completed]
     branches: [main]
+
   workflow_dispatch:
     inputs:
       environment:
@@ -16,8 +18,9 @@ on:
           - staging
           - prod
 
+
 concurrency:
-  group: ecs-deploy-${{ inputs.environment }}
+  group: ecs-deploy-${{ inputs.environment }}-${{ github.ref }}
   cancel-in-progress: true
 
 
@@ -25,17 +28,14 @@ permissions:
   id-token: write
   contents: read
 
-environment:
-    name: ${{ inputs.environment }}
-
-env:
-  AWS_REGION: ${{ vars.AWS_REGION }}
-  ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
 
 jobs:
   deploy:
     name: Deploy to ECS
     runs-on: ubuntu-latest
+
+    environment:
+      name: ${{ inputs.environment || 'dev' }}
     if: >
       github.event_name == 'workflow_dispatch' ||
       github.event.workflow_run.conclusion == 'success'

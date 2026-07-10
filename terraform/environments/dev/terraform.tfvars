@@ -48,3 +48,4 @@ app_port = 8080
 
 app_count = 1
 
+ecr_repository_url = "930067561901.dkr.ecr.us-east-1.amazonaws.com/gatus"

@@ -20,16 +20,22 @@ module "iam" {
   environment = var.environment
 }
 
-module "ecr" {
-  source       = "../../modules/ecr"
-  project_name = var.project_name
-  environment  = var.environment
-}
-
 module "route_53" {
-  source      = "../../modules/route_53"
+  source = "../../modules/route_53"
   domain_name = var.domain_name
   common_tags = var.common_tags
+}
+
+module "route_53_records" {
+
+  source = "../../modules/route_53_records"
+  zone_id = module.route_53.zone_id
+  domain_name = var.domain_name
+  alb_dns_name = module.alb.alb_dns_name
+  alb_zone_id = module.alb.alb_zone_id
+  depends_on = [
+    module.alb
+  ]
 }
 
 module "acm" {
@@ -69,7 +75,7 @@ module "ecs" {
   task_cpu               = var.task_cpu
   task_memory            = var.task_memory
   app_port               = var.app_port
-  ecr_repository_url     = module.ecr.repository_url
+  ecr_repository_url     = var.ecr_repository_url
   log_group              = module.cloudwatch.app_log_group
   common_tags            = var.common_tags
   environment            = var.environment
@@ -81,16 +87,5 @@ module "ecs" {
   app_count              = var.app_count
   depends_on = [
     module.alb
-  ]
-}
-
-module "route_53_record" {
-  source           = "../../modules/route_53_record"
-  zone_id          = module.route_53.zone_id
-  domain_name      = var.domain_name
-  aws_alb_dns_name = module.alb.alb_dns_name
-  aws_alb_zone_id  = module.alb.alb_zone_id
-  depends_on = [
-    module.ecs
   ]
 }

@@ -36,13 +36,6 @@ output "security_group_ecs_id" {
   value = module.security_groups.security_group_ecs_id
 }
 
-output "repository_url" {
-  value = module.ecr.repository_url
-}
-
-output "repository_name" {
-  value = module.ecr.repository_name
-}
 
 output "acm_certificate_arn" {
   value = module.acm.certificate_arn

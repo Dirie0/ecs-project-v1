@@ -19,3 +19,11 @@ module "deploy_role" {
   project_name      = var.project_name
 
 }
+
+
+module "ecr" {
+    source = "./modules/ecr"
+    project_name = var.project_name
+
+}
+

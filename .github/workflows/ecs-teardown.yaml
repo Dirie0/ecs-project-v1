@@ -57,15 +57,19 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.10.5"
+          terraform_version: "1.14.9"
 
       - name: Terraform Init
         working-directory: terraform/environments/${{ inputs.environment }}
         run: terraform init
 
+      #
       - name: Terraform Destroy
         working-directory: terraform/environments/${{ inputs.environment }}
-        run: terraform destroy -var-file=terraform.tfvars -auto-approve
+        run: terraform destroy \
+                -var-file=terraform.tfvars \
+                -var="app_image=unused-during-destroy" \
+                -auto-approve
    
  
       

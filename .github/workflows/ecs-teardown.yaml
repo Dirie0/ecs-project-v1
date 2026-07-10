@@ -66,10 +66,7 @@ jobs:
       #
       - name: Terraform Destroy
         working-directory: terraform/environments/${{ inputs.environment }}
-        run: terraform destroy \
-                -var-file=terraform.tfvars \
-                -var="app_image=unused-during-destroy" \
-                -auto-approve
+        run: terraform destroy -var-file=terraform.tfvars -auto-approve
    
  
       

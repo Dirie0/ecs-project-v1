@@ -53,7 +53,8 @@ variable "app_port" {
 
 
 variable "app_image" {
-  type = string
+  type    = string
+  default = "unused"
 }
 
 variable "app_count" {

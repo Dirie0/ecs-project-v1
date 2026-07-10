@@ -21,18 +21,18 @@ module "iam" {
 }
 
 module "route_53" {
-  source = "../../modules/route_53"
+  source      = "../../modules/route_53"
   domain_name = var.domain_name
   common_tags = var.common_tags
 }
 
 module "route_53_records" {
 
-  source = "../../modules/route_53_records"
-  zone_id = module.route_53.zone_id
-  domain_name = var.domain_name
+  source       = "../../modules/route_53_records"
+  zone_id      = module.route_53.zone_id
+  domain_name  = var.domain_name
   alb_dns_name = module.alb.alb_dns_name
-  alb_zone_id = module.alb.alb_zone_id
+  alb_zone_id  = module.alb.alb_zone_id
   depends_on = [
     module.alb
   ]

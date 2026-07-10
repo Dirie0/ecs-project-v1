@@ -1,2 +1,72 @@
-#terraform destroy, manual approval needed here. 
+name: Teardown ECS
 
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to tear down"
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      confirm:
+        description: 'Type the environment name to confirm destruction'
+        required: true
+        type: string
+
+concurrency:
+  group: ecs-teardown-${{ inputs.environment }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+  URL: ${{ vars.URL }}
+
+jobs:
+  teardown:
+    name: Teardown ECS
+    runs-on: ubuntu-latest
+
+    environment:
+      name: ${{ inputs.environment }}
+
+    steps:
+      - name: Verify confirmation
+        run: |
+          if [ "${{ inputs.confirm }}" != "${{ inputs.environment }}" ]; then
+            echo "Confirmation input does not match environment. Aborting."
+            exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.5"
+
+      - name: Terraform Init
+        working-directory: terraform/environments/${{ inputs.environment }}
+        run: terraform init
+
+      - name: Terraform Destroy
+        working-directory: terraform/environments/${{ inputs.environment }}
+        run: terraform destroy -var-file=terraform.tfvars -auto-approve
+   
+ 
+      
+  

@@ -4,13 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Environment to deploy to"
+        description: "Environment to deploy"
         required: true
         type: choice
         options:
           - dev
           - staging
           - prod
+      confirm:
+        description: 'Type the environment name to confirm deployment'
+        required: true
+        type: string
 
 concurrency:
   group: ecs-deploy-${{ inputs.environment }}-${{ github.ref }}
@@ -41,7 +45,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.10.5"
+          terraform_version: "1.14.9"
 
       - name: Terraform fmt check
         run: terraform fmt -check -recursive terraform
@@ -115,7 +119,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.10.5"
+          terraform_version: "1.14.9"
 
       - name: Terraform Init
         working-directory: terraform/environments/${{ inputs.environment }}

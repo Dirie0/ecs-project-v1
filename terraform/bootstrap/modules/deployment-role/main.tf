@@ -43,6 +43,7 @@ data "aws_iam_policy_document" "permissions" {
       "ec2:*",
       "logs:*",
       "route53:*",
+      "route53domains:*"
     ]
     resources = ["*"]
   }

@@ -40,7 +40,7 @@ private_subnet_config = {
   }
 }
 
-task_cpu = 256
+task_cpu    = 256
 task_memory = 512
-app_port = 8080
-app_count = 1
+app_port    = 8080
+app_count   = 1

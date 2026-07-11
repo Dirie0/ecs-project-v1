@@ -65,7 +65,3 @@ variable "app_count" {
 variable "domain_name" {
   type = string
 }
-
-variable "ecr_repository_url" {
-  type = string
-}

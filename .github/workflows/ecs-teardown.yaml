@@ -25,9 +25,21 @@ permissions:
   contents: read
 
 env:
-  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_REGION: ${{ vars.TF_VAR_AWS_REGION }}
   ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
   URL: ${{ vars.URL }}
+  TF_VAR_aws_region: ${{ vars.TF_VAR_AWS_REGION }}
+  TF_VAR_environment: ${{ vars.TF_VAR_ENVIRONMENT }}
+  TF_VAR_project_name: ${{ vars.TF_VAR_PROJECT_NAME }}
+  TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
+  TF_VAR_common_tags: ${{ vars.TF_VAR_COMMON_TAGS }}
+  TF_VAR_vpc_config: ${{ vars.TF_VAR_VPC_CONFIG }}
+  TF_VAR_public_subnet_config: ${{ vars.TF_VAR_PUBLIC_SUBNET_CONFIG }}
+  TF_VAR_private_subnet_config: ${{ vars.TF_VAR_PRIVATE_SUBNET_CONFIG }}
+  TF_VAR_task_cpu: ${{ vars.TF_VAR_TASK_CPU }}
+  TF_VAR_task_memory: ${{ vars.TF_VAR_TASK_MEMORY }}
+  TF_VAR_app_port: ${{ vars.TF_VAR_APP_PORT }}
+  TF_VAR_app_count: ${{ vars.TF_VAR_APP_COUNT }}
 
 jobs:
   teardown:
@@ -66,7 +78,7 @@ jobs:
       #
       - name: Terraform Destroy
         working-directory: terraform/environments/${{ inputs.environment }}
-        run: terraform destroy -var-file=terraform.tfvars -auto-approve
+        run: terraform destroy -auto-approve
    
  
       

@@ -55,12 +55,9 @@ resource "aws_internet_gateway" "main_igw" {
 }
 
 resource "aws_eip" "nat" {
-  for_each = aws_subnet.public
-
-  domain = "vpc"
-
+  for_each   = aws_subnet.public
+  domain     = "vpc"
   depends_on = [aws_internet_gateway.main_igw]
-
   tags = merge(
     var.common_tags,
     {
@@ -71,13 +68,10 @@ resource "aws_eip" "nat" {
 }
 
 resource "aws_nat_gateway" "nat_gateway" {
-  for_each = aws_subnet.public
-
+  for_each      = aws_subnet.public
   allocation_id = aws_eip.nat[each.key].id
   subnet_id     = each.value.id
-
-  depends_on = [aws_internet_gateway.main_igw]
-
+  depends_on    = [aws_internet_gateway.main_igw]
   tags = merge(
     var.common_tags,
     {
@@ -90,12 +84,10 @@ resource "aws_nat_gateway" "nat_gateway" {
 
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main_vpc.id
-
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.main_igw.id
   }
-
   tags = merge(
     var.common_tags,
     {
@@ -106,8 +98,7 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route_table_association" "public" {
-  for_each = aws_subnet.public
-
+  for_each       = aws_subnet.public
   subnet_id      = each.value.id
   route_table_id = aws_route_table.public.id
 }
@@ -118,7 +109,6 @@ resource "aws_route_table_association" "public" {
 resource "aws_route_table" "private" {
   for_each = aws_subnet.private
   vpc_id   = aws_vpc.main_vpc.id
-
   route {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.nat_gateway[var.private_subnet_config[each.key].nat_key].id
@@ -133,8 +123,7 @@ resource "aws_route_table" "private" {
 }
 
 resource "aws_route_table_association" "private" {
-  for_each = aws_subnet.private
-
+  for_each       = aws_subnet.private
   subnet_id      = each.value.id
   route_table_id = aws_route_table.private[each.key].id
 }

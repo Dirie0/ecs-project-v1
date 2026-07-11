@@ -63,7 +63,11 @@ data "aws_iam_policy_document" "permissions" {
       "iam:ListAttachedRolePolicies",
       "iam:TagRole",
       "iam:UntagRole",
-      "iam:PassRole"
+      "iam:PassRole",
+      "iam:ListInstanceProfilesForRole",
+      "iam:GetInstanceProfile",
+      "iam:DeleteInstanceProfile",
+      "iam:RemoveRoleFromInstanceProfile"
     ]
     resources = [
       "arn:aws:iam::*:role/${var.environment}-ecs-task-execution-role",

@@ -67,7 +67,7 @@ jobs:
         with:
           sarif_file: grype-results.sarif
 
-      - name: Tagging and push image to ECR
+      - name: Tagging and pushing image to ECR
         env:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
         run: |

@@ -18,3 +18,4 @@ terraform/bootstrap/terraform.lock.hcl
 **/.terraform/*
 *.tfstate
 *.tfstate.*
+terraform/environments/*/terraform.tfvars

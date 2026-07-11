@@ -6,16 +6,21 @@
 # OS
 .DS_Store
 
-
 # Misc
 *.db
 *.db-shm
 *.db-wal
 
-
-#terraform
-terraform/bootstrap/terraform.lock.hcl 
+# Terraform
 **/.terraform/*
 *.tfstate
 *.tfstate.*
-terraform/environments/*/terraform.tfvars
+*.tfvars.backup
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc

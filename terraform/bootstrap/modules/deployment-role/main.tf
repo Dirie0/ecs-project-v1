@@ -81,6 +81,8 @@ data "aws_iam_policy_document" "permissions" {
     resources = [
       "arn:aws:s3:::gatus-terraform-state-${var.environment}",
       "arn:aws:s3:::gatus-terraform-state-${var.environment}/*",
+      "arn:aws:s3:::gatus-bootstrap-state",
+      "arn:aws:s3:::gatus-bootstrap-state/*"
     ]
   }
 }

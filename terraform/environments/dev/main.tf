@@ -1,3 +1,15 @@
+#pulling in ecr repo url output from bootstrap module
+data "terraform_remote_state" "bootstrap" {
+
+  backend = "s3"
+
+  config = {
+    bucket = "gatus-terraform-state-bootstrap"
+    key    = "bootstrap/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+
 module "vpc" {
   source                = "../../modules/vpc"
   vpc_config            = var.vpc_config
@@ -75,7 +87,7 @@ module "ecs" {
   task_cpu               = var.task_cpu
   task_memory            = var.task_memory
   app_port               = var.app_port
-  ecr_repository_url     = var.ecr_repository_url
+  ecr_repository_url     = data.terraform_remote_state.bootstrap.outputs.ecr_repository_url
   log_group              = module.cloudwatch.app_log_group
   common_tags            = var.common_tags
   environment            = var.environment

@@ -10,31 +10,11 @@ deploys). Authentication to AWS uses **GitHub OIDC** — no long-lived AWS keys 
 
 ## Architecture
 
-![Architecture Diagram](screenshots/cicd.png)
+![Architecture Diagram](screenshots/cicd_final.png)
 
-```
-                          GitHub Actions (OIDC, no static keys)
-                                        │
-        ┌───────────────────────────────┼──────────────────────────────┐
-        │ push → main                    │ workflow_dispatch             │
-        ▼                                ▼                               ▼
-  docker-build.yaml                 ecs-deploy.yaml              ecs-teardown.yaml
-  build ARM64 image                 terraform plan/apply          terraform destroy
-  scan (Grype) → push ECR           (per environment)             (per environment)
 
-──────────────────────────────────────── AWS ────────────────────────────────────────
 
-   Internet ──▶ ALB (:80 → :443 redirect, TLS via ACM)   [public subnets]
-                        ▼
-                ECS Fargate service (ARM64, port 8080)    [private subnets]
-                        ▼  pulls image from ECR, logs to CloudWatch (30d retention)
-```
-
-- **Region:** `us-east-1` · **Project:** `gatus` · **Platform:** ECS Fargate, ARM64, port 8080
-- **Ingress:** public ALB, HTTP→HTTPS redirect, TLS terminated at the ALB via ACM
-- **Egress:** tasks run in private subnets, reach the internet via NAT gateways
-
-![Architecture Diagram](screenshots/aws_final.drawio.png)
+![Architecture Diagram](screenshots/aws_final.png)
 
 ---
 
@@ -226,6 +206,8 @@ run "Deploy to ECS"      → static analysis → terraform apply with app_image=
 
 **4. Tear down:** run "Teardown ECS", typing the environment name to confirm.
 
+---
+Deployment screenshots 
 
 ![Live Deployment](screenshots/site_running.png)
 ![Docker Build](screenshots/docker_build.png)

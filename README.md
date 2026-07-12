@@ -10,6 +10,8 @@ deploys). Authentication to AWS uses **GitHub OIDC** — no long-lived AWS keys 
 
 ## Architecture
 
+![Architecture Diagram](screenshots/architecture.png)
+
 ```
                           GitHub Actions (OIDC, no static keys)
                                         │
@@ -222,6 +224,8 @@ run "Deploy to ECS"      → static analysis → terraform apply with app_image=
 
 **4. Tear down:** run "Teardown ECS", typing the environment name to confirm.
 
+
+![Live Deployment](screenshots/site_running.png)
 ---
 
 ## Cost notes

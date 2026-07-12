@@ -8,13 +8,15 @@ deploys). Authentication to AWS uses **GitHub OIDC** — no long-lived AWS keys 
 
 ---
 
-## Architecture
+## AWS Architecture
+![Architecture Diagram](screenshots/aws_final.png)
 
+
+## CICD Architecture
 ![Architecture Diagram](screenshots/cicd_final.png)
 
 
 
-![Architecture Diagram](screenshots/aws_final.png)
 
 ---
 

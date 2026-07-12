@@ -10,7 +10,7 @@ deploys). Authentication to AWS uses **GitHub OIDC** — no long-lived AWS keys 
 
 ## Architecture
 
-![Architecture Diagram](screenshots/architecture.png)
+![Architecture Diagram](screenshots/cicd.png)
 
 ```
                           GitHub Actions (OIDC, no static keys)
@@ -33,6 +33,8 @@ deploys). Authentication to AWS uses **GitHub OIDC** — no long-lived AWS keys 
 - **Region:** `us-east-1` · **Project:** `gatus` · **Platform:** ECS Fargate, ARM64, port 8080
 - **Ingress:** public ALB, HTTP→HTTPS redirect, TLS terminated at the ALB via ACM
 - **Egress:** tasks run in private subnets, reach the internet via NAT gateways
+
+![Architecture Diagram](screenshots/aws_final.drawio.png)
 
 ---
 
@@ -226,6 +228,10 @@ run "Deploy to ECS"      → static analysis → terraform apply with app_image=
 
 
 ![Live Deployment](screenshots/site_running.png)
+![Docker Build](screenshots/docker_build.png)
+![Deploy to Ecs Part 1](screenshots/deploy_to_ecs_part_1.png)
+![Deploy to ECS Part 2](screenshots/deploy_to_ecs_part_2.png)
+![ECS Teardown](screenshots/tear_own_ecs you.png)
 ---
 
 ## Cost notes

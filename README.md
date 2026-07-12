@@ -47,7 +47,6 @@ deploys). Authentication to AWS uses **GitHub OIDC** — no long-lived AWS keys 
 └── .github/workflows/         # docker-build, ecs-deploy, ecs-teardown
 ```
 
-
 ---
 
 ## The application container (`gatus/`)
@@ -95,6 +94,7 @@ All three authenticate to AWS via **OIDC** and assume a role created by the boot
   `terraform destroy`.
 
 Deploy and teardown use a concurrency group keyed on environment + ref so runs can't overlap.
+
 ---
 
 ## Key design decisions
@@ -146,7 +146,7 @@ over `var.environments` for the two per-environment ones.
 The reusable building blocks each `environments/*` root wires together.
 
 | Module | Responsibility |
-|--------|----------------|
+|--------|-----------------|
 | `vpc` | VPC (DNS enabled), public + private subnets (`for_each`), Internet Gateway, one NAT gateway + EIP per public subnet, route tables. |
 | `security_groups` | **ALB SG** (ingress 80/443 from anywhere) and **ECS SG** (ingress 8080 *only* from the ALB SG). |
 | `iam` | ECS **task execution role** (AWS-managed `AmazonECSTaskExecutionRolePolicy`) and **task role**, trusting `ecs-tasks.amazonaws.com`. |
@@ -159,32 +159,68 @@ The reusable building blocks each `environments/*` root wires together.
 
 ---
 
-## Usage
+## GitHub Environment Setup
 
-**One-time setup (local, in order):**
+Four GitHub Environments are required: `shared` (image builds) and one each for `dev`, `staging`,
+`prod` (deploys/teardowns). Create them under **Settings → Environments**, then populate each with
+the secrets/variables below, sourced from the `bootstrap` layer's outputs (roles/ARNs) and your own
+per-environment config (domains, sizing, CIDRs).
+
+#### `shared` — used by `docker-build.yaml`
+
+| Kind | Name | Value |
+|------|------|-------|
+| Secret | `AWS_DEPLOY_ECR_ROLE_ARN` | ECR push role ARN (from `bootstrap` output) — OIDC, push/pull only |
+| Variable | `AWS_REGION` | `us-east-1` |
+| Variable | `ECR_REPOSITORY` | `gatus` |
+
+#### `dev` / `staging` / `prod` — used by `ecs-deploy.yaml` & `ecs-teardown.yaml`
+
+| Kind | Name | Value |
+|------|------|-------|
+| **Secret** | `AWS_DEPLOY_ROLE_ARN` | This environment's deploy role ARN (from `bootstrap` output) — **different per environment**, OIDC trust scoped to `repo:<repo>:environment:<env>` |
+| Variable | `ECR_REPOSITORY` | `gatus` |
+| Variable | `URL` | Public hostname for the post-deploy health check |
+| Variable | `TF_VAR_AWS_REGION` | `us-east-1` |
+| Variable | `TF_VAR_ENVIRONMENT` | `dev` / `staging` / `prod` |
+| Variable | `TF_VAR_PROJECT_NAME` | `gatus` |
+| Variable | `TF_VAR_DOMAIN_NAME` | Domain managed by Route 53 / covered by ACM |
+| Variable | `TF_VAR_COMMON_TAGS` | Common resource tags, e.g. `{"Environment":"dev","Project":"gatus","ManagedBy":"terraform"}` |
+| Variable | `TF_VAR_VPC_CONFIG` | VPC CIDR + name, e.g. `{"cidr_block":"10.0.0.0/22","name":"dev-vpc"}` |
+| Variable | `TF_VAR_PUBLIC_SUBNET_CONFIG` | Public subnet CIDRs / AZs |
+| Variable | `TF_VAR_PRIVATE_SUBNET_CONFIG` | Private subnet CIDRs / AZs (+ NAT mapping) |
+| Variable | `TF_VAR_TASK_CPU` | Fargate task CPU, e.g. `256` |
+| Variable | `TF_VAR_TASK_MEMORY` | Fargate task memory, e.g. `512` |
+| Variable | `TF_VAR_APP_PORT` | Container port — `8080` |
+| Variable | `TF_VAR_APP_COUNT` | Desired ECS task count |
+
+> Per-environment `terraform.tfvars` files are git-ignored. Locally, populate them by hand; in CI,
+> these `TF_VAR_*` GitHub variables supply the same values automatically.
+
+---
+
+## Running it (replication)
+
+**1. Bootstrap AWS (local, one-time, in order):**
 
 ```bash
-# 0. Create the bucket that holds bootstrap state
-cd terraform/bootstrap-state && terraform init && terraform apply
-
-# 1. Create shared resources (OIDC, ECR, per-env state buckets, deploy roles)
-cd ../bootstrap && terraform init && terraform apply
+cd terraform/bootstrap-state && terraform init && terraform apply   # creates the bootstrap state bucket
+cd ../bootstrap             && terraform init && terraform apply   # OIDC, ECR, per-env state buckets, deploy roles
 ```
 
-Then create the GitHub environments and populate them from the bootstrap outputs: `shared` gets
-`AWS_DEPLOY_ECR_ROLE_ARN`; each of `dev`/`staging`/`prod` gets its own `AWS_DEPLOY_ROLE_ARN` secret
-plus `TF_VAR_*` / `ECR_REPOSITORY` / `URL` variables. (Per-environment `terraform.tfvars` are
-git-ignored; CI supplies values via `TF_VAR_*`.)
+**2. Configure GitHub:** create the `shared`, `dev`, `staging`, `prod` environments and populate them
+per the [GitHub Environment Setup](#github-environment-setup) tables above, using the role ARNs and
+resource names output by step 1.
 
-**Day-to-day:**
+**3. Deploy:**
 
 ```
-1. Push to main         ──▶ build, scan, push gatus:<sha> to ECR
-2. Run "Deploy to ECS"  ──▶ static analysis ──▶ terraform apply with app_image=gatus:<sha>
-3. Health check confirms https://<URL>/health is live
+push to main            → docker-build.yaml builds, scans, pushes gatus:<sha> to ECR
+run "Deploy to ECS"      → static analysis → terraform apply with app_image=gatus:<sha>
+                         → health check confirms https://<URL>/health is live
 ```
 
-Tear down with the "Teardown ECS" workflow, typing the environment name to confirm.
+**4. Tear down:** run "Teardown ECS", typing the environment name to confirm.
 
 ---
 
@@ -206,9 +242,5 @@ Deliberate simplifications with a clear upgrade path, roughly in priority order:
    Analyzer from CloudTrail) and scope resources to `gatus-<env>-*`.
 2. **PRs + branch protection.** Require pull requests and green checks before code reaches `main`;
    run validation on `pull_request`, keep build-and-push on merge.
-3. **VPC endpoints** for AWS-bound traffic (S3 gateway, `ecr`/`logs` interface) to cut NAT
-   data-processing cost. *Caveat:* Gatus probes external URLs, so NAT is still required — endpoints
-   are an optimisation alongside NAT, not a replacement.
-4. **Multi-account isolation** — separate AWS accounts per environment for a true account boundary.
-5. **Smaller items:** ECR `IMMUTABLE` tags; enforce the `confirm` input in deploy; re-enable Checkov;
-   confirm S3 state locking; move `common_tags` to the provider's `default_tags`.
+3. **Multi-account isolation** — separate AWS accounts per environment for a true account boundary.
+4. **Smaller items:** re-enable Checkov and implement the changes.

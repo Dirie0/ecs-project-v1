@@ -215,7 +215,7 @@ Deployment screenshots
 ![Docker Build](screenshots/docker_build.png)
 ![Deploy to Ecs Part 1](screenshots/deploy_to_ecs_part_1.png)
 ![Deploy to ECS Part 2](screenshots/deploy_to_ecs_part_2.png)
-![ECS Teardown](screenshots/tear_own_ecs you.png)
+![ECS Teardown](screenshots/teardown_ecs.png)
 ---
 
 ## Cost notes

@@ -69,7 +69,7 @@ Internet ──▶ [ ALB SG ] ──▶ [ ECS SG ] ──▶ ECS task (:8080)
 
 All three authenticate to AWS via **OIDC** and assume a role created by the bootstrap layer.
 
-- **`docker-build.yaml`** (push to `main`, `shared` env): build `linux/arm64` image → scan with
+- **`docker-build.yaml`** (push to `main` and code change changed on app path: `gatus` , `shared` github env): build `linux/arm64` image → scan with
   **Grype** (fails on `critical`, uploads SARIF to the Security tab) → push to ECR as `gatus:<git-sha>`.
 
 - **`ecs-deploy.yaml`** (manual `workflow_dispatch`): Terraform static analysis (`fmt`, `validate`,
@@ -85,7 +85,7 @@ Deploy and teardown use a concurrency group keyed on environment + ref so runs c
 
 ## Key design decisions
 
-- **Trunk-based, deploy is manual.** Every push to `main` builds an immutable, SHA-tagged image
+- **Trunk-based, deploy is manual.** Every push to `main` and code changes on app path `gatus` builds an immutable, SHA-tagged image
   (`gatus:<git-sha>`) in ECR. Deploys are a separate `workflow_dispatch` — you choose which commit's
   image goes to which environment, and when. The deploy refuses to run unless the image already exists.
 
@@ -201,7 +201,7 @@ resource names output by step 1.
 **3. Deploy:**
 
 ```
-push to main            → docker-build.yaml builds, scans, pushes gatus:<sha> to ECR
+push to main and app path 'gatus\**'         → docker-build.yaml builds, scans, pushes gatus:<sha> to ECR
 run "Deploy to ECS"      → static analysis → terraform apply with app_image=gatus:<sha>
                          → health check confirms https://<URL>/health is live
 ```

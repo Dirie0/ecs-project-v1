@@ -122,7 +122,7 @@ over `var.environments` for the two per-environment ones.
 | Module | Instantiated | Responsibility |
 |--------|--------------|----------------|
 | `oidc` | once | The GitHub Actions **OIDC identity provider** (`token.actions.githubusercontent.com`, audience `sts.amazonaws.com`). Its ARN is passed into both role modules so they can be assumed with no static keys. |
-| `ecr` | once | The **ECR repository** (`gatus`) with `scan_on_push = true` and a lifecycle rule keeping the last 10 images (tag immmutability currently `IMMMUTABLE`). |
+| `ecr` | once | The **ECR repository** (`gatus`) with `scan_on_push = true` and a lifecycle rule keeping the last 10 images (tag immmutability currently `MUTABLE`). |
 | `s3` | per env | One **remote-state bucket per env** (`gatus-terraform-state-<env>`) — versioned, AES256-encrypted, full public-access block, `prevent_destroy`. |
 | `deployment-role` | per env | The **per-environment deploy role**, trust-scoped to `repo:<repo>:environment:<env>`. Policy has three statements: `AppServices` (broad `ecs/ecr/elb/acm/ec2/logs/route53` on `*`), `PassRoleScoped` (only the two ECS task roles for its env), `StateBackend` (its state bucket + bootstrap state). |
 | `ecr-deployment-role` | once | The **ECR push role**, trust-scoped to `environment:shared` — `ecr:GetAuthorizationToken` on `*` plus push/pull scoped to just the `gatus` repo ARN. |
@@ -135,7 +135,7 @@ The reusable building blocks each `environments/*` root wires together.
 |--------|-----------------|
 | `vpc` | VPC (DNS enabled), public + private subnets (`for_each`), Internet Gateway, one NAT gateway + EIP per public subnet, route tables. |
 | `security_groups` | **ALB SG** (ingress 80/443 from anywhere) and **ECS SG** (ingress 8080 *only* from the ALB SG). |
-| `iam` | ECS **task execution role** (AWS-managed `AmazonECSTaskExecutionRolePolicy`) and **task role**, trusting `ecs-tasks.amazonaws.com`. |
+| `iam` | ECS **task execution role** and ECS **task role**. |
 | `route_53` | Public **hosted zone** for the domain + name-server registration. |
 | `acm` | **ACM certificate** with DNS validation (creates the record, waits for validation). |
 | `route_53_records` | **A/alias record** pointing the domain at the ALB. |

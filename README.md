@@ -122,7 +122,7 @@ over `var.environments` for the two per-environment ones.
 | Module | Instantiated | Responsibility |
 |--------|--------------|----------------|
 | `oidc` | once | The GitHub Actions **OIDC identity provider** (`token.actions.githubusercontent.com`, audience `sts.amazonaws.com`). Its ARN is passed into both role modules so they can be assumed with no static keys. |
-| `ecr` | once | The **ECR repository** (`gatus`) with `scan_on_push = true` and a lifecycle rule keeping the last 10 images (tag mutability currently `MUTABLE`). |
+| `ecr` | once | The **ECR repository** (`gatus`) with `scan_on_push = true` and a lifecycle rule keeping the last 10 images (tag immmutability currently `IMMMUTABLE`). |
 | `s3` | per env | One **remote-state bucket per env** (`gatus-terraform-state-<env>`) — versioned, AES256-encrypted, full public-access block, `prevent_destroy`. |
 | `deployment-role` | per env | The **per-environment deploy role**, trust-scoped to `repo:<repo>:environment:<env>`. Policy has three statements: `AppServices` (broad `ecs/ecr/elb/acm/ec2/logs/route53` on `*`), `PassRoleScoped` (only the two ECS task roles for its env), `StateBackend` (its state bucket + bootstrap state). |
 | `ecr-deployment-role` | once | The **ECR push role**, trust-scoped to `environment:shared` — `ecr:GetAuthorizationToken` on `*` plus push/pull scoped to just the `gatus` repo ARN. |

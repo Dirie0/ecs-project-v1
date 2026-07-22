@@ -35,3 +35,19 @@ output "state_buckets" {
     environment => bucket.bucket_name
   }
 }
+
+
+output "zone_id" {
+  value = aws_route53_zone.main.zone_id
+}
+
+
+output "nameservers" {
+  value = aws_route53_zone.main.name_servers
+}
+
+
+output "domain_name" {
+  value = aws_route53_zone.main.name
+}
+

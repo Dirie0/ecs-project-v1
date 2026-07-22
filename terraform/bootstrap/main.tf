@@ -98,6 +98,7 @@ resource "aws_iam_role_policy" "ecr_push" {
 
 
 
+
 module "state_buckets" {
   for_each    = toset(var.environments)
   source      = "./modules/s3"

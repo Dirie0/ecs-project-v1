@@ -1,14 +1,7 @@
-#pulling in ecr repo url output from bootstrap module
-data "terraform_remote_state" "bootstrap" {
-
-  backend = "s3"
-
-  config = {
-    bucket = "gatus-bootstrap-state"
-    key    = "bootstrap/terraform.tfstate"
-    region = "us-east-1"
-  }
+data "aws_route53_zone" "main" {
+  name = var.domain_name
 }
+
 
 module "vpc" {
   source                = "../../modules/vpc"
@@ -32,19 +25,15 @@ module "iam" {
   environment = var.environment
 }
 
+
+
 module "route_53" {
-  source      = "../../modules/route_53"
-  domain_name = var.domain_name
-  common_tags = var.common_tags
-}
 
-module "route_53_records" {
-
-  source       = "../../modules/route_53_records"
-  zone_id      = module.route_53.zone_id
+  source       = "../../modules/route_53"
   domain_name  = var.domain_name
+  common_tags = var.common_tags
   alb_dns_name = module.alb.alb_dns_name
-  alb_zone_id  = module.alb.alb_zone_id
+  alb_zone_id = module.alb.alb_zone_id
   depends_on = [
     module.alb
   ]
@@ -70,13 +59,6 @@ module "alb" {
   depends_on = [
     module.acm
   ]
-}
-
-module "cloudwatch" {
-  source       = "../../modules/cloudwatch"
-  project_name = var.project_name
-  environment  = var.environment
-  common_tags  = var.common_tags
 }
 
 module "ecs" {

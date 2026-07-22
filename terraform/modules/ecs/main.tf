@@ -1,5 +1,37 @@
+resource "aws_cloudwatch_log_group" "app" {
+  name              = "/${var.project_name}/${var.environment}/app"
+  retention_in_days = 30
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name    = "${var.project_name}-${var.environment}-app-log-group"
+      Service = "cloudwatch"
+    }
+  )
+}
+
+resource "aws_kms_key" "example" {
+  description             = "example"
+  deletion_window_in_days = 7
+}
+
+
+
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "${var.project_name}-${var.environment}-cluster"
+  
+  configuration {
+    execute_command_configuration {
+      kms_key_id = aws_kms_key.example.arn
+      logging    = "OVERRIDE"
+
+      log_configuration {
+        cloud_watch_encryption_enabled = true
+        cloud_watch_log_group_name     = aws_cloudwatch_log_group.app.name
+      }
+    }
+  }
   tags = merge(
     var.common_tags,
     {

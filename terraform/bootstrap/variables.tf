@@ -21,3 +21,7 @@ variable "tags" {
 variable "environments" {
   type = list(string)
 }
+
+variable "domain_name" {
+  type = string
+}

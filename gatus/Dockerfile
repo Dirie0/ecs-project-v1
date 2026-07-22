@@ -2,7 +2,6 @@ FROM golang:1.26-alpine AS builder
 WORKDIR /go/src/app
 COPY go.mod go.sum ./
 RUN go mod download
-
 COPY . .
 RUN apk add --no-cache ca-certificates
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o gatus .
